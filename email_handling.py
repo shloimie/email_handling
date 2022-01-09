@@ -3,7 +3,7 @@ import imaplib
 import email
 
 username = "autointernet910@gmail.com"
-password = "12345qwertY"
+password = password
 connection = ""
 def start_send():
     global connection
