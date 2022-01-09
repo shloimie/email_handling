@@ -1,31 +1,54 @@
 import smtplib
-def send_email(send_to , subject , message):
-    email_address = "autointernet910@gmail.com"
-    password = "12345qwertY"
+import imaplib
+import email
+
+username = "autointernet910@gmail.com"
+password = "12345qwertY"
+connection = ""
+def start_send():
+    global connection
     connection = smtplib.SMTP("smtp.gmail.com")
     connection.starttls()
-    connection.login(user=email_address , password= password)
-    connection.sendmail(from_addr= email_address , to_addrs= send_to , msg= "Subject:"+ subject + "\n\n" + message)
+    connection.login(user=username, password=password)
+def send_main(send_to, message, subject="", ):
+    global connection
+    connection.sendmail(from_addr=username, to_addrs=send_to, msg="Subject:" + subject + "\n\n" + message)
+def end_send():
+    global connection
     connection.close()
+def send_email(send_to, message, subject="", ):
+    global  connection
+    try:
+        start_send()
+        send_main(send_to, message , subject)
+        end_send()
+        print(f"email send to {send_to}")
+    except:
+        print(f"sending email did not work because of error ")
 
-# send_email("hshloimie@gmail.com" , "this is function test" , "hello this is the body")
 
-import imaplib
-import pprint
+def get_inbox():
+    mail = imaplib.IMAP4_SSL('imap.gmail.com')
+    mail.login(username, password)
+    mail.select("inbox")
+    _, search_data = mail.search(None, 'UNSEEN')
+    my_message = []
+    for num in search_data[0].split():
+        email_data = {}
+        _, data = mail.fetch(num, '(RFC822)')
+        # print(data[0])
+        _, b = data[0]
+        email_message = email.message_from_bytes(b)
+        for header in ['subject', 'to', 'from', 'date']:
+            # print("{}: {}".format(header, email_message[header]))
+            email_data[header] = email_message[header]
+        for part in email_message.walk():
+            if part.get_content_type() == "text/plain":
+                body = part.get_payload(decode=True)
+                email_data['body'] = body.decode()
+            elif part.get_content_type() == "text/html":
+                html_body = part.get_payload(decode=True)
+                # email_data['html_body'] = html_body.decode()
+        my_message.append(email_data)
 
-imap_host = 'imap.gmail.com'
-imap_user = "autointernet910@gmail.com"
-imap_pass = "12345qwertY"
-
-# connect to host using SSL
-imap = imaplib.IMAP4_SSL(imap_host)
-
-## login to server
-imap.login(imap_user, imap_pass)
-imap.select('Inbox')
-tmp, data = imap.search(None, 'ALL')
-t, data = M.fetch('1', '(RFC822)')
-body = data[0][1]
-imap.close()
-
-# trying pip install imapclient
+    return my_message

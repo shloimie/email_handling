@@ -2,7 +2,6 @@ from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.common.action_chains import ActionChains
-import time
 import re
 
 
@@ -26,5 +25,6 @@ class WebHandleing():
             actions.send_keys(Keys.TAB)
         actions.send_keys(Keys.ENTER)
         actions.perform()
-
+    def screen(self, name = "screenshot"):
+        self.driver.save_screenshot(name + ".png")
 
