@@ -1,21 +1,22 @@
-from imapclient import IMAPClient
+
 
 imap_user = "autointernet910@gmail.com"
 imap_pass = "12345qwertY"
 
 imap_host = 'imap.gmail.com'
-server = IMAPClient('imap.gmail.com', use_uid=True)
-server.login(imap_user, imap_pass)
+import email
+from imapclient import IMAPClient
 
-select_info = server.select_folder('INBOX')
-print('%d messages in INBOX' % select_info[b'EXISTS'])
+HOST = 'imap.gmail.com'
+USERNAME = "autointernet910@gmail.com"
+PASSWORD = "12345qwertY"
 
-messages = server.search(['FROM', 'hshloimie@gmail.com'])
-print("%d messages from our best friend" % len(messages))
+with IMAPClient(HOST) as server:
+    server.login(USERNAME, PASSWORD)
+    server.select_folder("INBOX", readonly=True)
 
-
-for msgid, data in server.fetch(messages, ['ENVELOPE']).items():
-    envelope = data[b'ENVELOPE']
-    print('ID #%d: "%s" received %s' % (msgid, envelope.subject.decode(), envelope.date))
-
-server.logout()
+    messages = server.search("UNSEEN")
+    for uid, message_data in server.fetch(messages, "RFC822").items():
+        email_message = email.message_from_bytes(message_data[b"RFC822"])
+        print(uid, email_message.get("From"), email_message.get("Subject"))
+        print(email_message.get())
